@@ -1,16 +1,19 @@
 ARG BASE_VERSION=1.0.2
 ARG TARGETARCH
 
-# Allow overriding both via --build-arg
-ENV BASE_VERSION=${BASE_VERSION}
-ENV TARGETARCH=${TARGETARCH}
+# Normalize early (still only build-time variables)
+ARG NORMALIZED_ARCH
 
-# Normalize architecture name
+# ---- normalize logic via ARG (no RUN here) ----
+FROM alpine:3.20 AS arch-normalizer
+
+ARG TARGETARCH
+
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
-        TARGETARCH="aarch64"; \
-    fi && \
-    echo "Using TARGETARCH=$TARGETARCH"
-
+        echo "aarch64" > /arch; \
+    else \
+        echo "$TARGETARCH" > /arch; \
+    fi
 FROM ghcr.io/ihost-open-source-project/hassio-ihost-silabs-multiprotocol-${TARGETARCH}:${BASE_VERSION}
 
 ENV S6_VERBOSITY=3 \
