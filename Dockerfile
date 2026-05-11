@@ -1,5 +1,15 @@
-ARG BASE_VERSION=1.0.0
+ARG BASE_VERSION=1.0.2
 ARG TARGETARCH
+
+# Allow overriding both via --build-arg
+ENV BASE_VERSION=${BASE_VERSION}
+ENV TARGETARCH=${TARGETARCH}
+
+# Normalize architecture name
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+        TARGETARCH="aarch64"; \
+    fi && \
+    echo "Using TARGETARCH=$TARGETARCH"
 
 FROM ghcr.io/ihost-open-source-project/hassio-ihost-silabs-multiprotocol-${TARGETARCH}:${BASE_VERSION}
 
